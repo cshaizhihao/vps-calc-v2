@@ -103,13 +103,20 @@
             <div style="margin-bottom:10px; font-size:10px; color:var(--cyber-yellow)">
                 * 使用 &lt;style&gt; 编写 CSS，直接写内容为 HTML/Markdown
             </div>
-            <textarea id="aacInput" rows="12" placeholder="输入 HTML 或 # Markdown..."></textarea>
+            <textarea id="aacInput" rows="8" placeholder="输入 HTML 或 # Markdown..."></textarea>
             <button onclick="saveAAC()">PUBLISH TO NEURAL-WEB</button>
-            <button onclick="localStorage.removeItem('vps_aac'); location.reload();" style="background:#444">PURGE DATA</button>
+            <hr style="border:1px solid #333; margin:15px 0;">
+            <label>SECURE OVERRIDE (修改登录信息)</label>
+            <input type="text" id="newUser" placeholder="NEW USER" style="margin-bottom:5px">
+            <input type="password" id="newPass" placeholder="NEW PASS" style="margin-bottom:5px">
+            <button onclick="updateAuth()" style="background:var(--cyber-yellow); color:black;">UPDATE CREDENTIALS</button>
+            <button onclick="localStorage.removeItem('vps_aac'); location.reload();" style="background:#444; margin-top:10px;">PURGE DATA</button>
         </div>
     </div>
 
     <script>
+        let currentAuth = { user: '', pass: '' };
+
         function calculate() {
             const price = parseFloat(document.getElementById('price').value);
             const cycle = parseInt(document.getElementById('cycle').value);
@@ -141,11 +148,31 @@
                 body: JSON.stringify({ user, pass })
             });
             if (res.ok) {
+                currentAuth = { user, pass };
                 document.getElementById('login-form').style.display = 'none';
                 document.getElementById('aac-panel').style.display = 'block';
                 document.getElementById('aacInput').value = localStorage.getItem('vps_aac') || '';
             } else {
                 alert('ACCESS DENIED');
+            }
+        }
+
+        async function updateAuth() {
+            const newUser = document.getElementById('newUser').value;
+            const newPass = document.getElementById('newPass').value;
+            if(!newUser || !newPass) return alert("FIELDS CANNOT BE EMPTY");
+            
+            const res = await fetch('/api/update-auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...currentAuth, newUser, newPass })
+            });
+
+            if(res.ok) {
+                alert("CREDENTIALS UPDATED. LOGIN AGAIN.");
+                location.reload();
+            } else {
+                alert("UPDATE FAILED");
             }
         }
 
