@@ -13,119 +13,190 @@
             --neon-pink: #ff003c;
             --cyber-yellow: #fcee0a;
             --dark-bg: #0d0d0d;
-            --card-bg: rgba(20, 20, 20, 0.95);
+            --card-bg: rgba(15, 15, 15, 0.85);
+            --glass-blur: blur(12px);
         }
+
+        @keyframes glitch {
+            0% { transform: translate(0); text-shadow: -2px 0 var(--neon-pink), 2px 0 var(--neon-blue); }
+            25% { transform: translate(-2px, 2px); }
+            50% { transform: translate(2px, -2px); text-shadow: 2px 0 var(--neon-pink), -2px 0 var(--neon-blue); }
+            75% { transform: translate(-2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); }
+            50% { border-color: var(--neon-pink); box-shadow: 0 0 25px rgba(255, 0, 60, 0.4); }
+        }
+
         body {
             background-color: var(--dark-bg);
             color: white;
-            font-family: 'Roboto', 'Segoe UI', sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             min-height: 100vh;
+            overflow-x: hidden;
         }
+
         .scanlines {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
             background-size: 100% 2px, 3px 100%;
             pointer-events: none;
             z-index: 100;
+            opacity: 0.6;
         }
+
         .container {
-            max-width: 900px;
-            margin: 40px auto;
+            max-width: 1100px; /* 扩大中间主窗口尺寸 */
+            margin: 60px auto;
             padding: 20px;
             z-index: 2;
             position: relative;
         }
+
         .card {
             background: var(--card-bg);
+            backdrop-filter: var(--glass-blur); /* 玻璃拟态 */
             border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
-            padding: 30px;
+            animation: pulse-border 4s infinite ease-in-out; /* 呼吸灯 */
+            padding: 40px;
             border-radius: 4px;
-            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
         }
+
         h1 {
             font-family: 'Orbitron', sans-serif;
             color: var(--cyber-yellow);
             text-shadow: 2px 2px var(--neon-pink);
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 1.8rem;
+            gap: 15px;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
         }
+
+        h1:hover { animation: glitch 0.3s infinite; } /* 文字故障效果 */
+
         .input-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
         }
-        @media (max-width: 600px) { .input-grid { grid-template-columns: 1fr; } }
+
+        .field { margin-bottom: 10px; }
+        label { display: block; color: var(--neon-blue); font-size: 13px; margin-bottom: 8px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
         
-        .field { margin-bottom: 15px; }
-        label { display: block; color: var(--neon-blue); font-size: 12px; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
         input, select, textarea {
             width: 100%;
-            background: #111;
-            border: 1px solid #333;
-            border-left: 3px solid var(--neon-blue);
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #444;
+            border-left: 4px solid var(--neon-blue);
             color: white;
-            padding: 12px;
+            padding: 14px;
             box-sizing: border-box;
             outline: none;
+            font-size: 16px;
             transition: 0.3s;
         }
-        input:focus { border-color: var(--neon-pink); box-shadow: 0 0 10px rgba(255, 0, 60, 0.2); }
-        
-        button {
+        input:focus { border-color: var(--neon-pink); background: rgba(255,0,60,0.05); }
+
+        .btn-calc {
             width: 100%;
-            padding: 16px;
+            padding: 20px;
             background: var(--neon-pink);
             color: white;
             border: none;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 900;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
-            transition: 0.2s;
+            letter-spacing: 4px;
+            clip-path: polygon(20px 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+            transition: 0.3s;
         }
-        button:hover { background: var(--cyber-yellow); color: black; transform: scale(1.02); }
+        .btn-calc:hover { background: var(--cyber-yellow); color: black; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(252, 238, 10, 0.3); }
 
         .result-panel {
-            margin-top: 30px;
-            background: rgba(0, 243, 255, 0.08);
+            margin-top: 40px;
+            background: rgba(0, 243, 255, 0.1);
             border: 1px solid var(--neon-blue);
-            padding: 25px;
+            padding: 30px;
             display: none;
-            animation: fadeIn 0.5s;
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
-        .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #333; }
-        .res-label { color: var(--neon-blue); font-size: 0.9rem; }
-        .res-val { color: var(--cyber-yellow); font-weight: bold; font-family: 'Orbitron', monospace; }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
 
-        #aac-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        #aac-layer.active { pointer-events: auto; }
+        .res-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(0,243,255,0.2); }
+        .res-label { color: var(--neon-blue); font-size: 1rem; }
+        .res-val { color: var(--cyber-yellow); font-weight: bold; font-family: 'Orbitron', monospace; letter-spacing: 1px; }
 
-        .admin-trigger { position: fixed; bottom: 10px; right: 20px; font-size: 10px; color: #444; cursor: pointer; z-index: 1000; text-decoration: underline; }
-        #admin-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000; border: 2px solid var(--neon-pink); padding: 30px; z-index: 1001; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-        .lang-hint { font-size: 10px; color: #666; margin-top: 2px; }
+        /* 系统消息通知样式 */
+        .sys-msg {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 30px;
+            background: var(--neon-pink);
+            color: white;
+            z-index: 9999;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--neon-pink);
+            transform: translateX(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .sys-msg.active { transform: translateX(0); }
+        .sys-msg.success { background: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); color: black; }
+
+        .admin-trigger { 
+            position: fixed; 
+            bottom: 15px; 
+            right: 25px; 
+            font-size: 12px; 
+            padding: 5px 10px;
+            background: rgba(0, 0, 0, 0.5); /* 增加背景确保可见性 */
+            color: var(--cyber-yellow); /* 鲜亮颜色 */
+            cursor: pointer; 
+            z-index: 1000; 
+            text-decoration: none; 
+            border: 1px solid var(--cyber-yellow);
+        }
+        .admin-trigger:hover { background: var(--cyber-yellow); color: black; }
+
+        #admin-modal { 
+            display: none; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: #000; 
+            border: 2px solid var(--neon-pink); 
+            padding: 35px; 
+            z-index: 1001; 
+            width: 90%; 
+            max-width: 550px; 
+            box-shadow: 0 0 50px rgba(255,0,60,0.5);
+        }
     </style>
 </head>
 <body>
     <div class="scanlines"></div>
-    <div id="aac-layer"></div>
+    <div id="sys-toast" class="sys-msg">SYSTEM NOTIFICATION</div>
+    
     <div class="container">
         <div class="card">
-            <h1><span class="material-symbols-outlined">memory</span> 剩余价值计算器 <span style="font-size: 0.6em; opacity: 0.7;">// VALUE CALCULATOR</span></h1>
+            <h1><span class="material-symbols-outlined">memory</span> 剩余价值计算器 <span style="font-size: 0.5em; opacity: 0.7;">// VALUE CALCULATOR</span></h1>
             
             <div class="input-grid">
                 <div class="field">
-                    <label>币种选择 <span class="lang-hint">// CURRENCY</span></label>
+                    <label>币种选择 // CURRENCY</label>
                     <select id="currency" onchange="updateRate()">
                         <option value="CNY">人民币 (CNY)</option>
                         <option value="USD">美元 (USD)</option>
@@ -136,15 +207,15 @@
                     </select>
                 </div>
                 <div class="field">
-                    <label>当前汇率 <span class="lang-hint">// EXCHANGE RATE</span></label>
+                    <label>当前汇率 // EXCHANGE RATE</label>
                     <input type="number" id="rate" step="0.001" value="1.000">
                 </div>
                 <div class="field">
-                    <label>续费金额 <span class="lang-hint">// RENEWAL AMOUNT</span></label>
-                    <input type="number" id="price" placeholder="金额">
+                    <label>续费金额 // RENEWAL AMOUNT</label>
+                    <input type="number" id="price" placeholder="AMOUNT">
                 </div>
                 <div class="field">
-                    <label>付款周期 <span class="lang-hint">// BILLING CYCLE</span></label>
+                    <label>付款周期 // BILLING CYCLE</label>
                     <select id="cycle">
                         <option value="1">月付 (Monthly)</option>
                         <option value="3">季付 (Quarterly)</option>
@@ -154,24 +225,24 @@
                     </select>
                 </div>
                 <div class="field">
-                    <label>到期日期 <span class="lang-hint">// EXPIRY DATE</span></label>
+                    <label>到期日期 // EXPIRY DATE</label>
                     <input type="date" id="expiry">
                 </div>
                 <div class="field">
-                    <label>交易日期 <span class="lang-hint">// TRADE DATE</span></label>
+                    <label>交易日期 // TRADE DATE</label>
                     <input type="date" id="trade">
                 </div>
             </div>
             
-            <button onclick="calc()">开始计算 // RUN CALCULATION</button>
+            <button class="btn-calc" onclick="runCalc()">开始计算 // RUN CALCULATION</button>
 
             <div id="result" class="result-panel">
-                <h3 style="color:var(--cyber-yellow); margin-top:0;">计算结果 // RESULTS:</h3>
+                <h3 style="color:var(--cyber-yellow); margin-top:0; border-bottom: 2px solid var(--neon-blue); padding-bottom: 10px;">计算结果 // RESULTS</h3>
                 <div class="res-row"><span class="res-label">剩余天数 // REMAINING DAYS:</span><span class="res-val" id="res-days">-</span></div>
                 <div class="res-row"><span class="res-label">日均成本 // DAILY COST:</span><span class="res-val" id="res-daily">-</span></div>
-                <div class="res-row" style="font-size: 1.4em; border: none; margin-top: 10px;">
+                <div class="res-row" style="font-size: 1.6em; border: none; margin-top: 15px;">
                     <span style="color:var(--neon-blue)">剩余价值 // CORE VALUE:</span>
-                    <span class="res-val" id="res-total">-</span>
+                    <span class="res-val" id="res-total" style="text-shadow: 0 0 10px var(--cyber-yellow);">-</span>
                 </div>
             </div>
         </div>
@@ -180,67 +251,85 @@
     <div class="admin-trigger" onclick="openAdmin()">[系统覆盖 // SYSTEM_OVERRIDE]</div>
 
     <div id="admin-modal">
-        <h3 style="color:var(--neon-pink)">ROOT 身份验证 // AUTH</h3>
+        <h3 style="color:var(--neon-pink); border-bottom: 1px solid var(--neon-pink); padding-bottom:10px;">ROOT 身份验证 // AUTH</h3>
         <div id="login-view">
-            <input type="text" id="user" placeholder="用户名 USER" style="margin-bottom:10px">
-            <input type="password" id="pass" placeholder="密码 PASS" style="margin-bottom:10px">
-            <button onclick="login()">解密 // DECRYPT</button>
+            <input type="text" id="user" placeholder="USER" style="margin-bottom:15px">
+            <input type="password" id="pass" placeholder="PASS" style="margin-bottom:15px">
+            <button class="btn-calc" onclick="login()" style="font-size:14px; padding:12px;">解密 // DECRYPT</button>
         </div>
         <div id="dash-view" style="display:none">
             <label>AAC 注入 (HTML/CSS/Markdown)</label>
-            <textarea id="aac-input" rows="5" style="margin-bottom:10px" placeholder="在此注入代码..."></textarea>
-            <button onclick="saveAAC()">发布 // PUBLISH</button>
-            <hr style="border-color:#222; margin:15px 0;">
+            <textarea id="aac-input" rows="5" style="margin-bottom:15px"></textarea>
+            <button class="btn-calc" onclick="saveAAC()" style="font-size:14px; padding:12px; margin-bottom:15px;">发布 // PUBLISH</button>
+            
             <label>背景设置 // BACKGROUND URL</label>
-            <input type="text" id="bg-url" placeholder="图片或视频网页链接" style="margin-bottom:10px">
-            <button onclick="saveBG()" style="background:var(--neon-blue); color:black;">更新背景 // SYNC BG</button>
-            <hr style="border-color:#222; margin:15px 0;">
+            <input type="text" id="bg-url" placeholder="URL" style="margin-bottom:15px">
+            <button class="btn-calc" onclick="saveBG()" style="font-size:14px; padding:12px; background:var(--neon-blue); color:black; margin-bottom:15px;">同步背景 // SYNC BG</button>
+            
             <label>修改凭据 // UPDATE AUTH</label>
-            <input type="text" id="n-user" placeholder="新用户名" style="margin-bottom:5px">
-            <input type="password" id="n-pass" placeholder="新密码" style="margin-bottom:5px">
-            <button onclick="upAuth()" style="background:#444">更新 // SYNC AUTH</button>
+            <input type="text" id="n-user" placeholder="NEW USER" style="margin-bottom:10px">
+            <input type="password" id="n-pass" placeholder="NEW PASS" style="margin-bottom:10px">
+            <button class="btn-calc" onclick="upAuth()" style="font-size:14px; padding:12px; background:#444;">更新凭据 // SYNC AUTH</button>
         </div>
-        <button onclick="closeAdmin()" style="background:transparent; color:#666; font-size:12px; margin-top:15px;">关闭 // CLOSE</button>
+        <button onclick="closeAdmin()" style="background:transparent; color:#666; border:none; margin-top:20px; cursor:pointer;">[关闭 // CLOSE]</button>
     </div>
 
     <script>
         document.getElementById('trade').valueAsDate = new Date();
 
-        // 自动获取汇率
+        function showMsg(text, isSuccess = false) {
+            const toast = document.getElementById('sys-toast');
+            toast.innerText = text;
+            toast.className = 'sys-msg' + (isSuccess ? ' success' : '');
+            toast.classList.add('active');
+            setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
         async function updateRate() {
             const curr = document.getElementById('currency').value;
-            if(curr === 'CNY') {
-                document.getElementById('rate').value = "1.000";
-                return;
-            }
+            if(curr === 'CNY') { document.getElementById('rate').value = "1.000"; return; }
             try {
                 const res = await fetch('/api/rates', { method: 'POST' });
                 const data = await res.json();
-                const rate = data.rates.CNY / data.rates[curr];
-                document.getElementById('rate').value = rate.toFixed(4);
-            } catch(e) { console.error("汇率获取失败"); }
+                const r = data.rates.CNY / data.rates[curr];
+                document.getElementById('rate').value = r.toFixed(4);
+                showMsg("汇率已同步 // RATE SYNCED", true);
+            } catch(e) { showMsg("汇率获取失败 // RATE ERROR"); }
         }
 
-        function calc() {
+        function animateNumber(id, finalValue, duration = 1000, suffix = "") {
+            const obj = document.getElementById(id);
+            let start = 0;
+            const step = (timestamp) => {
+                if (!start) start = timestamp;
+                const progress = Math.min((timestamp - start) / duration, 1);
+                const current = (progress * finalValue).toFixed(2);
+                obj.innerText = current + suffix;
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function runCalc() {
             const p = parseFloat(document.getElementById('price').value);
             const r = parseFloat(document.getElementById('rate').value);
             const c = parseInt(document.getElementById('cycle').value);
             const e = new Date(document.getElementById('expiry').value);
             const t = new Date(document.getElementById('trade').value);
 
-            if(!p || isNaN(e.getTime())) return alert("数据无效 // INVALID DATA");
-            
+            if(!p || isNaN(e.getTime())) { showMsg("数据无效 // INVALID DATA"); return; }
             const diff = Math.ceil((e - t) / (1000 * 60 * 60 * 24));
-            if(diff < 0) return alert("节点已过期 // NODE EXPIRED");
+            if(diff < 0) { showMsg("节点已过期 // NODE EXPIRED"); return; }
             
             const localPrice = p * r;
-            const daily = localPrice / (c * 30.44); // 粗略计算月均天数优化精准度
+            const daily = localPrice / (c * 30.44);
             const total = daily * diff;
 
             document.getElementById('res-days').innerText = diff + " 天 (DAYS)";
             document.getElementById('res-daily').innerText = daily.toFixed(4) + " CNY";
-            document.getElementById('res-total').innerText = total.toFixed(2) + " CNY";
             document.getElementById('result').style.display = 'block';
+            animateNumber('res-total', total, 1500, " CNY"); // 数字滚动
+            showMsg("计算完成 // CALC READY", true);
         }
 
         let auth = { user: '', pass: '' };
@@ -256,55 +345,49 @@
                 document.getElementById('dash-view').style.display = 'block';
                 document.getElementById('aac-input').value = localStorage.getItem('aac') || '';
                 document.getElementById('bg-url').value = localStorage.getItem('bg') || '';
-            } else alert("拒绝访问 // DENIED");
+                showMsg("权限已授予 // ACCESS GRANTED", true);
+            } else showMsg("拒绝访问 // ACCESS DENIED");
         }
 
         function saveAAC() {
             const val = document.getElementById('aac-input').value;
             localStorage.setItem('aac', val);
-            renderAAC(val);
-            alert("已同步 // SYNC COMPLETE");
+            location.reload();
         }
 
         function saveBG() {
             const val = document.getElementById('bg-url').value;
             localStorage.setItem('bg', val);
-            applyBG(val);
-            alert("背景已更新 // BG UPDATED");
+            document.body.style.backgroundImage = `url('${val}')`;
+            showMsg("背景已更新 // BG UPDATED", true);
         }
 
         async function upAuth() {
             const newUser = document.getElementById('n-user').value;
             const newPass = document.getElementById('n-pass').value;
+            if(!newUser || !newPass) { showMsg("输入不能为空 // EMPTY FIELD"); return; } // 修复空白凭据逻辑
+            
             const res = await fetch('/api/update-auth', { 
                 method:'POST', 
                 body:JSON.stringify({ ...auth, newUser, newPass }) 
             });
-            if(res.ok) { alert("凭据已同步 // SYNCED"); location.reload(); }
-        }
-
-        function renderAAC(content) {
-            if(!content) return;
-            const area = document.getElementById('aac-layer');
-            area.classList.add('active');
-            if(content.includes('<')) area.innerHTML = content;
-            else area.innerHTML = marked.parse(content);
-            const styles = area.querySelectorAll('style');
-            styles.forEach(s => document.head.appendChild(s.cloneNode(true)));
-        }
-
-        function applyBG(url) {
-            if(!url) return;
-            document.body.style.backgroundImage = `url('${url}')`;
-            if(url.includes('http') && !url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-                // 如果是网页链接，尝试作为 iframe 背景（高级玩家）
-                console.log("检测到网页链接背景");
-            }
+            if(res.ok) { showMsg("凭据已同步 // AUTH SYNCED", true); setTimeout(() => location.reload(), 1000); }
         }
 
         window.onload = () => {
-            renderAAC(localStorage.getItem('aac'));
-            applyBG(localStorage.getItem('bg'));
+            const aac = localStorage.getItem('aac');
+            if(aac) {
+                const layer = document.createElement('div');
+                layer.style.position = 'fixed'; layer.style.top = '0'; layer.style.left = '0';
+                layer.style.width = '100%'; layer.style.height = '100%'; layer.style.pointerEvents = 'none';
+                if(aac.includes('<')) layer.innerHTML = aac;
+                else layer.innerHTML = marked.parse(aac);
+                document.body.appendChild(layer);
+                const styles = layer.querySelectorAll('style');
+                styles.forEach(s => document.head.appendChild(s.cloneNode(true)));
+            }
+            const bg = localStorage.getItem('bg');
+            if(bg) document.body.style.backgroundImage = `url('${bg}')`;
             updateRate();
         };
     </script>
