@@ -18,12 +18,7 @@
 在你的服务器上执行以下命令即可快速启动：
 
 ```bash
-mkdir -p vps-calc-v2 && cd vps-calc-v2 && \
-curl -L https://raw.githubusercontent.com/cshaizhihao/vps-calc-v2/main/server.js -o server.js && \
-curl -L https://raw.githubusercontent.com/cshaizhihao/vps-calc-v2/main/index.html -o index.html && \
-read -p "请输入运行端口 (默认 8030): " port && \
-port=${port:-8030} && \
-node server.js $port
+curl -fsSL https://raw.githubusercontent.com/cshaizhihao/vps-calc-v2/main/install.sh | bash
 ```
 
 ---
