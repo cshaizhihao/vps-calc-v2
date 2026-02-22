@@ -1,5 +1,5 @@
 #!/bin/bash
-# VPS CALCULATOR V3.2 极速安装脚本
+# VPS CALCULATOR V3.3 极速安装脚本
 set -e
 
 echo "========================================"
@@ -24,17 +24,32 @@ BASE_URL="https://raw.githubusercontent.com/cshaizhihao/vps-calc-v2/main"
 curl -fsSL "$BASE_URL/server.js" -o server.js
 curl -fsSL "$BASE_URL/index.html" -o index.html
 
-# 4. 端口设置 (针对 FinalShell 优化)
-read -t 10 -p "请输入端口 [默认 8030]: " PORT || PORT=8030
-PORT=${PORT:-8030}
+# 4. 端口设置 (完全解决交互问题)
+USER_PORT=""
+echo "请输入端口 [直接回车使用默认 8030]: "
+read -t 10 USER_PORT || USER_PORT=""
+PORT=${USER_PORT:-8030}
 
 # 5. 启动
-echo "正在启动..."
-# 尝试杀死旧进程
+echo "正在启动，监听端口: $PORT ..."
+# 确保端口未被占用
 PID=$(lsof -t -i:"$PORT" 2>/dev/null || true)
-if [ -n "$PID" ]; then kill -9 "$PID"; fi
+if [ -n "$PID" ]; then 
+    echo "正在关闭占用端口 $PORT 的进程..."
+    kill -9 "$PID" || true
+fi
 
+# 核心：使用 nohup 启动，并确保 server.js 收到正确的端口
 nohup node server.js "$PORT" > app.log 2>&1 &
+sleep 2
+
+# 检查进程是否成功启动
+if ps aux | grep -v grep | grep "node server.js $PORT" > /dev/null; then
+    echo "服务启动成功！"
+else
+    echo "错误：服务未能在端口 $PORT 启动，请检查 app.log"
+    exit 1
+fi
 
 # 6. 完成
 IP=$(curl -4 -s ifconfig.me || echo "你的IP")
