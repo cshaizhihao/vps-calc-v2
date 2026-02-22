@@ -62,6 +62,6 @@ nohup node server.js "$PORT" > app.log 2>&1 &
 
 echo -e "${CYAN}----------------------------------------${NC}"
 echo -e "${GREEN}安装成功！系统已进入后台运行。${NC}"
-echo -e "${YELLOW}访问地址: http://$(curl -s ifconfig.me):$PORT${NC}"
+echo -e "${YELLOW}访问地址: http://$(curl -4 -s ifconfig.me):$PORT${NC}"
 echo -e "日志路径: $INSTALL_DIR/app.log"
 echo -e "${CYAN}----------------------------------------${NC}"
