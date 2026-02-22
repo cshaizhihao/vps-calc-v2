@@ -1,5 +1,5 @@
 #!/bin/bash
-# VPS 价值计算器 V3.5 汉化极速安装脚本
+# VPS 价值计算器 V3.6.1 汉化极速安装脚本
 set -e
 
 echo "========================================"
@@ -27,12 +27,19 @@ echo "正在从 GitHub 获取最新中文组件..."
 curl -fsSL "$BASE_URL/server.js" -o server.js
 curl -fsSL "$BASE_URL/index.html" -o index.html
 
-# 4. 端口设置 (全汉化交互)
+# 4. 端口设置 (支持自定义)
 PORT=8030
-echo "请输入您想使用的端口 [直接回车使用默认 8030]: "
-if read -t 10 USER_PORT; then
+echo "请输入您想使用的运行端口 (例: 8080) [直接回车使用默认 8030]: "
+# 使用 read 接收输入，若 15 秒内无操作则使用默认值
+if read -t 15 USER_PORT; then
     if [ ! -z "$USER_PORT" ]; then
-        PORT=$USER_PORT
+        # 简单验证是否为数字
+        if [[ "$USER_PORT" =~ ^[0-9]+$ ]]; then
+            PORT=$USER_PORT
+        else
+            echo "输入无效，将使用默认端口 8030"
+            PORT=8030
+        fi
     fi
 fi
 
@@ -55,5 +62,6 @@ echo "安装圆满成功！"
 echo "访问地址: http://${IP}:${PORT}"
 echo "默认管理账号: admin"
 echo "默认管理密码: admin"
+echo "日志文件: $INSTALL_DIR/app.log"
 echo "温馨提示: 您可以在登录后台后修改密码或网页样式。"
 echo "----------------------------------------"
