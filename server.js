@@ -53,6 +53,26 @@ const server = http.createServer((req, res) => {
                 } catch (e) { res.writeHead(400); res.end('Bad Request'); }
                 return;
             }
+
+            // 汇率 API 代理 (避免前端跨域)
+            if (req.url === '/api/rates') {
+                const options = {
+                    hostname: 'throbbing-sun-9eb6.b7483311.workers.dev',
+                    port: 443,
+                    path: '/',
+                    method: 'GET'
+                };
+                const proxyReq = require('https').request(options, proxyRes => {
+                    res.writeHead(proxyRes.statusCode, proxyRes.headers);
+                    proxyRes.pipe(res);
+                });
+                proxyReq.on('error', e => {
+                    res.writeHead(500);
+                    res.end(e.message);
+                });
+                proxyReq.end();
+                return;
+            }
         });
         return;
     }
@@ -87,11 +107,10 @@ const server = http.createServer((req, res) => {
     });
 });
 
-// 强制绑定到 IPv4 (0.0.0.0) 舍弃 IPv6
+// 强制绑定到 IPv4 (0.0.0.0)
 server.listen(port, '0.0.0.0', () => {
     console.log(`\n========================================`);
-    console.log(`  VPS CALCULATOR V3.2 (CYBERPUNK) ONLINE`);
-    console.log(`  IPV4 ONLY: http://0.0.0.0:${port}      `);
-    console.log(`  DEFAULT AUTH: admin / admin           `);
+    console.log(`  VPS CALCULATOR V3.5 (CHINESE) ONLINE  `);
+    console.log(`  IPV4: http://0.0.0.0:${port}           `);
     console.log(`========================================\n`);
 });

@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEURAL-LINK // VPS VALUE CALCULATOR</title>
-    <!-- 引入 Material Design 字体和图标 (借鉴) -->
+    <title>VPS 剩余价值计算器 // VALUE CALCULATOR</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -14,18 +13,28 @@
             --neon-pink: #ff003c;
             --cyber-yellow: #fcee0a;
             --dark-bg: #0d0d0d;
-            --card-bg: rgba(20, 20, 20, 0.9);
+            --card-bg: rgba(20, 20, 20, 0.95);
         }
         body {
             background-color: var(--dark-bg);
             color: white;
             font-family: 'Roboto', 'Segoe UI', sans-serif;
             margin: 0;
-            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 40px auto;
             padding: 20px;
             z-index: 2;
@@ -34,7 +43,7 @@
         .card {
             background: var(--card-bg);
             border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
             padding: 30px;
             border-radius: 4px;
             clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
@@ -46,6 +55,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: 1.8rem;
         }
         .input-grid {
             display: grid;
@@ -56,10 +66,10 @@
         @media (max-width: 600px) { .input-grid { grid-template-columns: 1fr; } }
         
         .field { margin-bottom: 15px; }
-        label { display: block; color: var(--neon-blue); font-size: 12px; margin-bottom: 5px; text-transform: uppercase; }
+        label { display: block; color: var(--neon-blue); font-size: 12px; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
         input, select, textarea {
             width: 100%;
-            background: #1a1a1a;
+            background: #111;
             border: 1px solid #333;
             border-left: 3px solid var(--neon-blue);
             color: white;
@@ -68,11 +78,11 @@
             outline: none;
             transition: 0.3s;
         }
-        input:focus { border-color: var(--neon-pink); }
+        input:focus { border-color: var(--neon-pink); box-shadow: 0 0 10px rgba(255, 0, 60, 0.2); }
         
         button {
             width: 100%;
-            padding: 15px;
+            padding: 16px;
             background: var(--neon-pink);
             color: white;
             border: none;
@@ -81,116 +91,161 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+            transition: 0.2s;
         }
-        button:hover { background: var(--cyber-yellow); color: black; }
+        button:hover { background: var(--cyber-yellow); color: black; transform: scale(1.02); }
 
         .result-panel {
             margin-top: 30px;
-            background: rgba(0, 243, 255, 0.05);
-            border: 1px dashed var(--neon-blue);
-            padding: 20px;
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid var(--neon-blue);
+            padding: 25px;
             display: none;
+            animation: fadeIn 0.5s;
         }
-        .res-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
-        .res-val { color: var(--cyber-yellow); font-weight: bold; }
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #333; }
+        .res-label { color: var(--neon-blue); font-size: 0.9rem; }
+        .res-val { color: var(--cyber-yellow); font-weight: bold; font-family: 'Orbitron', monospace; }
 
-        #aac-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        #aac-area.active { pointer-events: auto; }
+        #aac-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        #aac-layer.active { pointer-events: auto; }
 
-        .admin-trigger { position: fixed; bottom: 10px; right: 20px; font-size: 10px; color: #333; cursor: pointer; z-index: 1000; }
-        #admin-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000; border: 2px solid var(--neon-pink); padding: 30px; z-index: 1001; width: 90%; max-width: 500px; }
+        .admin-trigger { position: fixed; bottom: 10px; right: 20px; font-size: 10px; color: #444; cursor: pointer; z-index: 1000; text-decoration: underline; }
+        #admin-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000; border: 2px solid var(--neon-pink); padding: 30px; z-index: 1001; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .lang-hint { font-size: 10px; color: #666; margin-top: 2px; }
     </style>
 </head>
 <body>
-    <div id="aac-area"></div>
+    <div class="scanlines"></div>
+    <div id="aac-layer"></div>
     <div class="container">
         <div class="card">
-            <h1><span class="material-symbols-outlined">memory</span> // VPS_VALUATION</h1>
+            <h1><span class="material-symbols-outlined">memory</span> 剩余价值计算器 <span style="font-size: 0.6em; opacity: 0.7;">// VALUE CALCULATOR</span></h1>
             
             <div class="input-grid">
                 <div class="field">
-                    <label>Credit Amount (续费金额)</label>
-                    <input type="number" id="price" placeholder="例如: 100">
-                </div>
-                <div class="field">
-                    <label>Billing Cycle (付款周期)</label>
-                    <select id="cycle">
-                        <option value="30">MONTHLY / 月付</option>
-                        <option value="90">QUARTERLY / 季付</option>
-                        <option value="180">BI-ANNUALLY / 半年付</option>
-                        <option value="365">YEARLY / 年付</option>
-                        <option value="730">2-YEARS / 两年付</option>
+                    <label>币种选择 <span class="lang-hint">// CURRENCY</span></label>
+                    <select id="currency" onchange="updateRate()">
+                        <option value="CNY">人民币 (CNY)</option>
+                        <option value="USD">美元 (USD)</option>
+                        <option value="EUR">欧元 (EUR)</option>
+                        <option value="JPY">日元 (JPY)</option>
+                        <option value="HKD">港币 (HKD)</option>
+                        <option value="GBP">英镑 (GBP)</option>
                     </select>
                 </div>
                 <div class="field">
-                    <label>Node Expiry (到期时间)</label>
+                    <label>当前汇率 <span class="lang-hint">// EXCHANGE RATE</span></label>
+                    <input type="number" id="rate" step="0.001" value="1.000">
+                </div>
+                <div class="field">
+                    <label>续费金额 <span class="lang-hint">// RENEWAL AMOUNT</span></label>
+                    <input type="number" id="price" placeholder="金额">
+                </div>
+                <div class="field">
+                    <label>付款周期 <span class="lang-hint">// BILLING CYCLE</span></label>
+                    <select id="cycle">
+                        <option value="1">月付 (Monthly)</option>
+                        <option value="3">季付 (Quarterly)</option>
+                        <option value="6">半年付 (Semi-Annual)</option>
+                        <option value="12">年付 (Yearly)</option>
+                        <option value="24">两年付 (2-Year)</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>到期日期 <span class="lang-hint">// EXPIRY DATE</span></label>
                     <input type="date" id="expiry">
                 </div>
                 <div class="field">
-                    <label>Trade Date (交易日期)</label>
+                    <label>交易日期 <span class="lang-hint">// TRADE DATE</span></label>
                     <input type="date" id="trade">
                 </div>
             </div>
             
-            <button onclick="calc()">INITIALIZE CALCULATION</button>
+            <button onclick="calc()">开始计算 // RUN CALCULATION</button>
 
             <div id="result" class="result-panel">
-                <div class="res-row"><span>REMAINING_DAYS:</span><span class="res-val" id="res-days">-</span></div>
-                <div class="res-row"><span>DAILY_COST:</span><span class="res-val" id="res-daily">-</span></div>
+                <h3 style="color:var(--cyber-yellow); margin-top:0;">计算结果 // RESULTS:</h3>
+                <div class="res-row"><span class="res-label">剩余天数 // REMAINING DAYS:</span><span class="res-val" id="res-days">-</span></div>
+                <div class="res-row"><span class="res-label">日均成本 // DAILY COST:</span><span class="res-val" id="res-daily">-</span></div>
                 <div class="res-row" style="font-size: 1.4em; border: none; margin-top: 10px;">
-                    <span style="color:var(--neon-blue)">CORE_VALUE:</span>
-                    <span class="res-val" id="res-total" style="color:var(--cyber-yellow)">-</span>
+                    <span style="color:var(--neon-blue)">剩余价值 // CORE VALUE:</span>
+                    <span class="res-val" id="res-total">-</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="admin-trigger" onclick="openAdmin()">[SYSTEM_OVERRIDE]</div>
+    <div class="admin-trigger" onclick="openAdmin()">[系统覆盖 // SYSTEM_OVERRIDE]</div>
 
     <div id="admin-modal">
-        <h3 style="color:var(--neon-pink)">ROOT AUTHENTICATION</h3>
+        <h3 style="color:var(--neon-pink)">ROOT 身份验证 // AUTH</h3>
         <div id="login-view">
-            <input type="text" id="user" placeholder="USER" style="margin-bottom:10px">
-            <input type="password" id="pass" placeholder="PASS" style="margin-bottom:10px">
-            <button onclick="login()">ICEBREAKER</button>
+            <input type="text" id="user" placeholder="用户名 USER" style="margin-bottom:10px">
+            <input type="password" id="pass" placeholder="密码 PASS" style="margin-bottom:10px">
+            <button onclick="login()">解密 // DECRYPT</button>
         </div>
         <div id="dash-view" style="display:none">
-            <label>AAC INJECTION (HTML/CSS/MD)</label>
-            <textarea id="aac-input" rows="8" style="margin-bottom:10px"></textarea>
-            <button onclick="saveAAC()">INJECT</button>
+            <label>AAC 注入 (HTML/CSS/Markdown)</label>
+            <textarea id="aac-input" rows="5" style="margin-bottom:10px" placeholder="在此注入代码..."></textarea>
+            <button onclick="saveAAC()">发布 // PUBLISH</button>
             <hr style="border-color:#222; margin:15px 0;">
-            <label>UPDATE AUTH</label>
-            <input type="text" id="n-user" placeholder="NEW USER" style="margin-bottom:5px">
-            <input type="password" id="n-pass" placeholder="NEW PASS" style="margin-bottom:5px">
-            <button onclick="upAuth()">SYNC AUTH</button>
+            <label>背景设置 // BACKGROUND URL</label>
+            <input type="text" id="bg-url" placeholder="图片或视频网页链接" style="margin-bottom:10px">
+            <button onclick="saveBG()" style="background:var(--neon-blue); color:black;">更新背景 // SYNC BG</button>
+            <hr style="border-color:#222; margin:15px 0;">
+            <label>修改凭据 // UPDATE AUTH</label>
+            <input type="text" id="n-user" placeholder="新用户名" style="margin-bottom:5px">
+            <input type="password" id="n-pass" placeholder="新密码" style="margin-bottom:5px">
+            <button onclick="upAuth()" style="background:#444">更新 // SYNC AUTH</button>
         </div>
+        <button onclick="closeAdmin()" style="background:transparent; color:#666; font-size:12px; margin-top:15px;">关闭 // CLOSE</button>
     </div>
 
     <script>
         document.getElementById('trade').valueAsDate = new Date();
 
+        // 自动获取汇率
+        async function updateRate() {
+            const curr = document.getElementById('currency').value;
+            if(curr === 'CNY') {
+                document.getElementById('rate').value = "1.000";
+                return;
+            }
+            try {
+                const res = await fetch('/api/rates', { method: 'POST' });
+                const data = await res.json();
+                const rate = data.rates.CNY / data.rates[curr];
+                document.getElementById('rate').value = rate.toFixed(4);
+            } catch(e) { console.error("汇率获取失败"); }
+        }
+
         function calc() {
             const p = parseFloat(document.getElementById('price').value);
+            const r = parseFloat(document.getElementById('rate').value);
             const c = parseInt(document.getElementById('cycle').value);
             const e = new Date(document.getElementById('expiry').value);
             const t = new Date(document.getElementById('trade').value);
 
-            if(!p || isNaN(e.getTime())) return alert("INVALID DATA");
+            if(!p || isNaN(e.getTime())) return alert("数据无效 // INVALID DATA");
             
             const diff = Math.ceil((e - t) / (1000 * 60 * 60 * 24));
-            if(diff < 0) return alert("NODE EXPIRED");
+            if(diff < 0) return alert("节点已过期 // NODE EXPIRED");
             
-            const daily = p / c;
+            const localPrice = p * r;
+            const daily = localPrice / (c * 30.44); // 粗略计算月均天数优化精准度
             const total = daily * diff;
 
-            document.getElementById('res-days').innerText = diff + " D";
-            document.getElementById('res-daily').innerText = daily.toFixed(4);
-            document.getElementById('res-total').innerText = total.toFixed(2) + " CREDITS";
+            document.getElementById('res-days').innerText = diff + " 天 (DAYS)";
+            document.getElementById('res-daily').innerText = daily.toFixed(4) + " CNY";
+            document.getElementById('res-total').innerText = total.toFixed(2) + " CNY";
             document.getElementById('result').style.display = 'block';
         }
 
         let auth = { user: '', pass: '' };
         function openAdmin() { document.getElementById('admin-modal').style.display = 'block'; }
+        function closeAdmin() { document.getElementById('admin-modal').style.display = 'none'; }
         
         async function login() {
             auth.user = document.getElementById('user').value;
@@ -200,13 +255,22 @@
                 document.getElementById('login-view').style.display = 'none';
                 document.getElementById('dash-view').style.display = 'block';
                 document.getElementById('aac-input').value = localStorage.getItem('aac') || '';
-            } else alert("DENIED");
+                document.getElementById('bg-url').value = localStorage.getItem('bg') || '';
+            } else alert("拒绝访问 // DENIED");
         }
 
         function saveAAC() {
             const val = document.getElementById('aac-input').value;
             localStorage.setItem('aac', val);
             renderAAC(val);
+            alert("已同步 // SYNC COMPLETE");
+        }
+
+        function saveBG() {
+            const val = document.getElementById('bg-url').value;
+            localStorage.setItem('bg', val);
+            applyBG(val);
+            alert("背景已更新 // BG UPDATED");
         }
 
         async function upAuth() {
@@ -216,12 +280,12 @@
                 method:'POST', 
                 body:JSON.stringify({ ...auth, newUser, newPass }) 
             });
-            if(res.ok) { alert("SYNCED"); location.reload(); }
+            if(res.ok) { alert("凭据已同步 // SYNCED"); location.reload(); }
         }
 
         function renderAAC(content) {
             if(!content) return;
-            const area = document.getElementById('aac-area');
+            const area = document.getElementById('aac-layer');
             area.classList.add('active');
             if(content.includes('<')) area.innerHTML = content;
             else area.innerHTML = marked.parse(content);
@@ -229,7 +293,20 @@
             styles.forEach(s => document.head.appendChild(s.cloneNode(true)));
         }
 
-        window.onload = () => renderAAC(localStorage.getItem('aac'));
+        function applyBG(url) {
+            if(!url) return;
+            document.body.style.backgroundImage = `url('${url}')`;
+            if(url.includes('http') && !url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                // 如果是网页链接，尝试作为 iframe 背景（高级玩家）
+                console.log("检测到网页链接背景");
+            }
+        }
+
+        window.onload = () => {
+            renderAAC(localStorage.getItem('aac'));
+            applyBG(localStorage.getItem('bg'));
+            updateRate();
+        };
     </script>
 </body>
 </html>
