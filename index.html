@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURAL-LINK // VPS VALUE CALCULATOR</title>
+    <style id="custom-css">
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff003c;
+            --cyber-yellow: #fcee0a;
+            --dark-bg: #0d0d0d;
+        }
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Segoe UI', Orbitron, sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+        }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 4px solid var(--cyber-yellow);
+            background: rgba(0, 0, 0, 0.8);
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%);
+            position: relative;
+        }
+        .container::before {
+            content: "SYSTEM STATUS: ACTIVE";
+            position: absolute;
+            top: -25px;
+            left: 0;
+            color: var(--cyber-yellow);
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+        h2 {
+            color: var(--cyber-yellow);
+            text-transform: uppercase;
+            font-style: italic;
+            border-bottom: 2px solid var(--neon-pink);
+            padding-bottom: 10px;
+            text-shadow: 2px 2px var(--neon-pink);
+        }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; color: var(--neon-blue); font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
+        input, select, textarea {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid var(--neon-blue);
+            color: white;
+            padding: 10px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input:focus { border-color: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: var(--neon-pink);
+            color: white;
+            border: none;
+            text-transform: uppercase;
+            font-weight: bold;
+            cursor: pointer;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            transition: 0.3s;
+        }
+        button:hover { background: var(--neon-blue); color: black; }
+        #result {
+            margin-top: 20px;
+            border: 1px dashed var(--neon-blue);
+            padding: 15px;
+            display: none;
+        }
+        .neon-text { color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); }
+        .admin-link {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 10px;
+            color: #333;
+            text-decoration: none;
+        }
+        /* Modal for Admin */
+        #admin-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 2px solid var(--neon-pink);
+            padding: 30px;
+            z-index: 100;
+            width: 80%;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>// VPS_VALUATION.exe</h2>
+        <div class="input-group">
+            <label>Credit Balance (价格)</label>
+            <input type="number" id="price" placeholder="100.00">
+        </div>
+        <div class="input-group">
+            <label>Billing Cycle (周期)</label>
+            <select id="cycle">
+                <option value="30">MONTHLY / 30D</option>
+                <option value="90">QUARTERLY / 90D</option>
+                <option value="365">YEARLY / 365D</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>Expiry Node (到期日)</label>
+            <input type="date" id="expiryDate">
+        </div>
+        <button onclick="calculate()">RUN CALCULATION</button>
+
+        <div id="result">
+            <p>DATA RECOVERED:</p>
+            <div>REMAINING: <span class="neon-text" id="resDays">-</span></div>
+            <div>DAILY_BURN: <span class="neon-text" id="resDaily">-</span></div>
+            <div style="font-size: 1.2em; margin-top: 10px;">MARKET_VALUE: <span style="color:var(--cyber-yellow)" id="resValue">-</span></div>
+        </div>
+    </div>
+
+    <a href="javascript:void(0)" class="admin-link" onclick="toggleAdmin()">[ROOT_ACCESS]</a>
+
+    <div id="admin-panel">
+        <h3 style="color:var(--neon-pink)">ICEBREAKER LOGIN</h3>
+        <input type="text" id="adminUser" placeholder="USER" style="margin-bottom:10px">
+        <input type="password" id="adminPass" placeholder="PASS" style="margin-bottom:10px">
+        <button onclick="login()">OVERRIDE</button>
+        
+        <div id="aac-panel" style="display:none; margin-top:20px;">
+            <label>AAC (CUSTOM CSS OVERRIDE)</label>
+            <textarea id="customCssInput" rows="5" placeholder=".container { border-color: pink; }"></textarea>
+            <button onclick="applyAAC()">APPLY_AAC</button>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            const price = parseFloat(document.getElementById('price').value);
+            const cycle = parseInt(document.getElementById('cycle').value);
+            const expiry = new Date(document.getElementById('expiryDate').value);
+            const trade = new Date();
+
+            if (!price || isNaN(expiry.getTime())) return;
+
+            const diffTime = expiry - trade;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) { alert("NODE EXPIRED"); return; }
+
+            const daily = price / cycle;
+            const val = daily * diffDays;
+
+            document.getElementById('resDays').innerText = diffDays + " DAYS";
+            document.getElementById('resDaily').innerText = daily.toFixed(4);
+            document.getElementById('resValue').innerText = val.toFixed(2) + " CREDITS";
+            document.getElementById('result').style.display = 'block';
+        }
+
+        function toggleAdmin() {
+            const p = document.getElementById('admin-panel');
+            p.style.display = p.style.display === 'block' ? 'none' : 'block';
+        }
+
+        async function login() {
+            const user = document.getElementById('adminUser').value;
+            const pass = document.getElementById('adminPass').value;
+            
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user, pass })
+            });
+
+            if (res.ok) {
+                document.getElementById('aac-panel').style.display = 'block';
+                alert('ACCESS GRANTED');
+            } else {
+                alert('ACCESS DENIED');
+            }
+        }
+
+        function applyAAC() {
+            const css = document.getElementById('customCssInput').value;
+            localStorage.setItem('custom_aac', css);
+            location.reload();
+        }
+
+        // Load AAC on start
+        const savedCss = localStorage.getItem('custom_aac');
+        if (savedCss) {
+            const styleUpdate = document.createElement('style');
+            styleUpdate.innerHTML = savedCss;
+            document.head.appendChild(styleUpdate);
+        }
+    </script>
+</body>
+</html>
